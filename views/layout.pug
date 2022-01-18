@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+      block head
+        title= title
+        link(rel="shortcut icon" type="image/x-icon" href='/stylesheets/favicon.ico')
+        link(rel='stylesheet' href='/stylesheets/reset.css')
+        link(rel='stylesheet' href='/stylesheets/layout.css')
+        link(rel='stylesheet' href='/stylesheets/recipe-detail.css')
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css")
+        link(rel='stylesheet' href='/stylesheets/ratings.css')
+        script(src='/javascripts/index.js')
+        script(src='/javascripts/reviews.js')
+
+  body
+    nav(class='navbar')
+      a( href='/')
+        h1.logo recip<b>eats</b>
+      div.navLinks
+        a(class='navButton' href='/recipes') Recipes
+        if locals.authenticated
+          a(href='/boards') Boards
+          form(action='/users/logout' method='post')
+            button(class='navButton' type='submit').logout Logout
+        else
+          a(class='navButton' href='/users/login').login Login
+          a(class='navButton' href='/users/signup').signup Sign up
+    block content
+  footer
+    div.footer
+      a(href="") Terms of Service
+      a(href="") Contact
+      a(href="/recipes") Recipes
+      a(href="") Newsletter
