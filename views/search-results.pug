@@ -1,0 +1,23 @@
+extends layout.pug
+
+append head 
+    link(rel='stylesheet' href='/stylesheets/recipes.css')
+
+
+block content 
+    //- .results 
+    //-     each recipe in recipes 
+    //-         .search-result 
+    //-             a(href=`/recipes/${recipe.id}`)
+    //-                 img(src= recipe.image)
+    //-                 h3= recipe.title
+
+    if recipes.length > 0
+        div.catDiv
+                each recipe in recipes
+                    div.recipeContainer
+                        a(href=`/recipes/${recipe.id}`)
+                            img(src= recipe.image)
+                            h3= recipe.title
+    else 
+        h1#no-results No results found :(

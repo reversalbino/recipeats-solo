@@ -5,6 +5,8 @@ const db = require('../db/models'); //db.Model
 const { loginUser, logoutUser, requireAuth } = require('../auth');
 const { application } = require('express');
 
+const { Op } = require('sequelize');
+
 const router = express.Router();
 let errors = [];
 
@@ -14,7 +16,7 @@ router.get('/', async (req, res, next) => {
     res.render('recipes', { recipes })
 })
 
-router.get("/:id", csrfProtection, async (req, res, next) => {
+router.get("/:id(\\d+)", csrfProtection, async (req, res, next) => {
     let userId = null, userHasReview = false;
 
     const recipeId = req.params.id;
@@ -110,7 +112,7 @@ router.get("/:id", csrfProtection, async (req, res, next) => {
     });
   });
 
-router.post('/:rId/boards', async (req, res, next) => {
+router.post('/:rId(\\d+)/boards', async (req, res, next) => {
     const recipeId = req.params.rId
     const boardId = req.body.addToBoard
     const recipe = await db.Recipe.findByPk(recipeId);
@@ -140,7 +142,7 @@ router.post('/:rId/boards', async (req, res, next) => {
 })
 
 
-router.post('/:id/review/add', requireAuth, asyncHandler(async(req, res, next) => {
+router.post('/:id(\\d+)/review/add', requireAuth, asyncHandler(async(req, res, next) => {
     const { reviewbody } = req.body
 
     const userId = req.session.auth.userId
@@ -177,7 +179,7 @@ router.post('/:id/review/add', requireAuth, asyncHandler(async(req, res, next) =
 
 }));
 
-router.post('/reviews/:id/edit', requireAuth, asyncHandler(async(req, res, next) => {
+router.post('/reviews/:id(\\d+)/edit', requireAuth, asyncHandler(async(req, res, next) => {
     const {theReviewText} = req.body;
 
     try {
@@ -193,7 +195,7 @@ router.post('/reviews/:id/edit', requireAuth, asyncHandler(async(req, res, next)
     }
 }));
 
-router.delete('/reviews/:id/delete', requireAuth, asyncHandler(async(req, res, next) => {
+router.delete('/reviews/:id(\\d+)/delete', requireAuth, asyncHandler(async(req, res, next) => {
     const userId = req.session.auth.userId
     reviewId = req.params.id
     const reviewToDelete = await db.Review.findByPk(req.params.id);
@@ -206,7 +208,7 @@ router.delete('/reviews/:id/delete', requireAuth, asyncHandler(async(req, res, n
     }
 }));
 
-router.post("/:id/:rating",requireAuth, asyncHandler(async (req, res, next) => {
+router.post("/:id(\\d+)/:rating",requireAuth, asyncHandler(async (req, res, next) => {
     const recipeId = req.params.id;
     // const userId = req.params.uId;
     const value = req.params.rating
@@ -241,8 +243,120 @@ router.post("/:id/:rating",requireAuth, asyncHandler(async (req, res, next) => {
   })
 );
 
+router.all((req, res, next) => {
+    console.log('=================Before Search================');
+    next();
+});
 
+router.get('/search', asyncHandler(async (req, res, next) => {
 
+console.log('==============AFTER==================');
+    const TERM = req.query.term;
+ 
+    console.log('==========TERM===========', TERM)
 
+    const RECIPES_WITH_TERM_IN_TITLE = await db.Recipe.findAll({
+        where: {
+            [Op.or]: [
+                { 
+                    title: {
+                        [Op.iLike]: '%' + TERM + '%'
+                    }
+                },
+                // {
+                //     include: [{
+                //         model: db.Category,
+                //         where: {
+                //             name: {
+                //                 [Op.iLike]: '%' + TERM + '%'
+                //             }
+                //         }
+                //     }]
+                // }
+            ]
+        }
+        // include: [{
+        //     model: db.Ingredient,
+        //     where: {
+        //         name: {
+        //             [Op.iLike]: '%' + TERM + '%'
+        //         }
+        //     }
+        // }]
+    });
+
+    const RECIPES_WITH_TERM_IN_CATEGORY = await db.Recipe.findAll({
+        include: {
+            model: db.Category,
+            where: {
+                    name: {
+                        [Op.iLike]: '%' + TERM + '%'
+                    }
+                }
+            }
+    });
+
+    const RECIPES_WITH_TERM_IN_INGREDIENTS = await db.Ingredient.findAll({
+        where: {
+            [Op.or]: [
+                {
+                    name: {
+                        [Op.iLike]: '%' + TERM + '%'
+                    }
+                }
+            ]
+        },
+        include: {
+            model: db.Recipe
+        }
+    });
+
+    let allMatchingRecipes = [...RECIPES_WITH_TERM_IN_TITLE, ...RECIPES_WITH_TERM_IN_CATEGORY, ...RECIPES_WITH_TERM_IN_INGREDIENTS]
+
+    //console.log(allMatchingRecipes);
+
+    for(let i = 0; i < allMatchingRecipes.length; i++) {
+        for(let j = 0; j < allMatchingRecipes.length; j++) {
+            if (allMatchingRecipes[i] == allMatchingRecipes[j] && i != j) {
+                allMatchingRecipes.splice(i, 1);
+                i--;
+                j--;
+            }
+        }
+    }
+
+    console.log('=================LENGTH=================', allMatchingRecipes.length)
+
+    let matchingRecipeIds = new Set();
+
+    for(let recipe of allMatchingRecipes) {
+        if(recipe.Recipe) {
+            matchingRecipeIds.add(recipe.Recipe.id);
+            continue;
+        }
+        matchingRecipeIds.add(recipe.id);
+    }
+
+    console.log(matchingRecipeIds);
+
+    let recipes = await db.Recipe.findAll({
+        // Array.from(matchingRecipeIds);
+        where: {
+            id: {
+                [Op.in]: Array.from(matchingRecipeIds)
+            }
+        }
+    });
+
+    console.log(recipes);
+
+    //return res.redirect(`/recipes/?search=${TERM}`);
+    res.render('search-results', { recipes })
+}));
+
+router.all((req, res, next) => {
+    console.log('=================After Search================');
+    next();
+});
 
 module.exports = router;
