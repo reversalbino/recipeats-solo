@@ -75,3 +75,9 @@ h2 {
     padding: 20px 15px 0px 15px;
     text-align: center;
 }
+
+#no-results {
+    height: 500px;
+    text-align: center;
+    margin-top: auto;
+}

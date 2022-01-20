@@ -313,17 +313,17 @@ console.log('==============AFTER==================');
 
     let allMatchingRecipes = [...RECIPES_WITH_TERM_IN_TITLE, ...RECIPES_WITH_TERM_IN_CATEGORY, ...RECIPES_WITH_TERM_IN_INGREDIENTS]
 
-    //console.log(allMatchingRecipes);
+    console.log('++++++++++++++++', allMatchingRecipes);
 
-    for(let i = 0; i < allMatchingRecipes.length; i++) {
-        for(let j = 0; j < allMatchingRecipes.length; j++) {
-            if (allMatchingRecipes[i] == allMatchingRecipes[j] && i != j) {
-                allMatchingRecipes.splice(i, 1);
-                i--;
-                j--;
-            }
-        }
-    }
+    // for(let i = 0; i < allMatchingRecipes.length; i++) {
+    //     for(let j = 0; j < allMatchingRecipes.length; j++) {
+    //         if (allMatchingRecipes[i] == allMatchingRecipes[j] && i != j) {
+    //             allMatchingRecipes.splice(i, 1);
+    //             i--;
+    //             j--;
+    //         }
+    //     }
+    // }
 
     console.log('=================LENGTH=================', allMatchingRecipes.length)
 

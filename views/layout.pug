@@ -11,17 +11,19 @@ html
         link(rel='stylesheet' href='/stylesheets/ratings.css')
         script(src='/javascripts/index.js')
         script(src='/javascripts/reviews.js')
+        <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 
   body
     nav(class='navbar')
       a( href='/')
         h1.logo recip<b>eats</b>
-      #search-box 
-        form(action='/recipes/search' method='get')
-          label(for='search-term') Search
-          input#search-input-field(type='text' name='term' value=term placeholder='Search')
-          button.submitSearch(type='submit') Search
       div.navLinks
+        #search-box 
+          form(action='/recipes/search' method='get')
+            label(for='search-term')
+            #search-bar 
+              i#search-icon.fa.fa-search(aria-hidden="true")
+              input#search-input-field(type='text' name='term' value=term placeholder=`Know What You're Looking For?`) 
         a(class='navButton' href='/recipes') Recipes
         if locals.authenticated
           a(href='/boards') Boards
