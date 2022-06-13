@@ -2,12 +2,11 @@
 .homepageRecipes {
     width: 80%;
     height: auto;
-    margin: 0 auto;    
+    margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: auto;
     grid-gap: 20px;
- 
 }
 /* //NOTE media screen should not be moved */
 @media only screen and (max-width: 1500px) {
@@ -35,16 +34,14 @@ h2 {
 
 .homepageEachRecipe {
     height:400px;
-    width: 300px;
     display: flex;
     flex-direction: column;
     flex-shrink: inherit;
-
 }
 
-.homepageEachRecipe a{
+.homepageEachRecipe a {
     position: relative;
-    transition: all .1s ease-in; 
+    transition: all .1s ease-in;
     display: flex;
     text-decoration: none;
     flex: 1;
@@ -58,7 +55,7 @@ h2 {
 
 .homepageEachRecipe a:hover {
     top: -2px;
-    box-shadow: 0 4px 5px rgba(0,0,0,0.2); 
+    box-shadow: 0 4px 5px rgba(0,0,0,0.2);
 }
 
 .homepageEachRecipe a h3 {

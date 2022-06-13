@@ -252,13 +252,13 @@ router.get('/search', asyncHandler(async (req, res, next) => {
 
 console.log('==============AFTER==================');
     const TERM = req.query.term;
- 
+
     console.log('==========TERM===========', TERM)
 
     const RECIPES_WITH_TERM_IN_TITLE = await db.Recipe.findAll({
         where: {
             [Op.or]: [
-                { 
+                {
                     title: {
                         [Op.iLike]: '%' + TERM + '%'
                     }
@@ -313,7 +313,41 @@ console.log('==============AFTER==================');
 
     let allMatchingRecipes = [...RECIPES_WITH_TERM_IN_TITLE, ...RECIPES_WITH_TERM_IN_CATEGORY, ...RECIPES_WITH_TERM_IN_INGREDIENTS]
 
-    console.log('++++++++++++++++', allMatchingRecipes);
+    // let allMatchingRecipes = await db.Recipe.findAll({
+    //     [Op.or]: [
+    //         {
+    //             where: {
+    //                 title:
+    //                 {
+    //                     [Op.iLike]: '%' + TERM + '%'
+    //                 }
+    //             }
+    //         }
+    //         ,
+    //         {
+    //             include: {
+    //                 model: db.Ingredient,
+    //                 where: {
+    //                     name: {
+    //                         [Op.iLike]: '%' + TERM + '%'
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         {
+    //             include: {
+    //                 model: db.Category,
+    //                 where: {
+    //                     name: {
+    //                         [Op.iLike]: '%' + TERM + '%'
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     ]
+    // })
+
+    //console.log('++++++++++++++++', allMatchingRecipes.length);
 
     // for(let i = 0; i < allMatchingRecipes.length; i++) {
     //     for(let j = 0; j < allMatchingRecipes.length; j++) {
@@ -348,10 +382,10 @@ console.log('==============AFTER==================');
         }
     });
 
-    console.log(recipes);
+    // console.log(recipes);
 
     //return res.redirect(`/recipes/?search=${TERM}`);
-    res.render('search-results', { recipes })
+    res.render('search-results', { recipes: allMatchingRecipes })
 }));
 
 router.all((req, res, next) => {
