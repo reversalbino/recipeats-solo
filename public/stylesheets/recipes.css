@@ -13,12 +13,13 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
+    width: 100%;
 }
 
 /* //NOTE Media screen should not move from this position */
 @media only screen and (max-width: 1500px) {
 
-    .catDiv { 
+    .catDiv {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
@@ -36,17 +37,16 @@ h2 {
 
 .recipeContainer {
     height:400px;
-    width: 300px;
+    width: 100%;
     display: flex;
     justify-content:center;
     flex-direction: column;
     flex-shrink: inherit;
-
 }
 
 .recipeContainer a {
     position: relative;
-    transition: all .1s ease-in; 
+    transition: all .1s ease-in;
     display: flex;
     text-decoration: none;
     flex: 1;
@@ -60,7 +60,7 @@ h2 {
 
 .recipeContainer a:hover {
     top: -2px;
-    box-shadow: 0 4px 5px rgba(0,0,0,0.2); 
+    box-shadow: 0 4px 5px rgba(0,0,0,0.2);
 }
 
 .recipeContainer a h3 {
