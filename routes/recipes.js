@@ -244,46 +244,20 @@ router.post("/:id(\\d+)/:rating",requireAuth, asyncHandler(async (req, res, next
 );
 
 router.all((req, res, next) => {
-    console.log('=================Before Search================');
     next();
 });
 
 router.get('/search', asyncHandler(async (req, res, next) => {
-
-console.log('==============AFTER==================');
     const TERM = req.query.term;
-
-    console.log('==========TERM===========', TERM)
 
     const RECIPES_WITH_TERM_IN_TITLE = await db.Recipe.findAll({
         where: {
-            [Op.or]: [
-                {
-                    title: {
-                        [Op.iLike]: '%' + TERM + '%'
-                    }
-                },
-                // {
-                //     include: [{
-                //         model: db.Category,
-                //         where: {
-                //             name: {
-                //                 [Op.iLike]: '%' + TERM + '%'
-                //             }
-                //         }
-                //     }]
-                // }
-            ]
-        }
-        // include: [{
-        //     model: db.Ingredient,
-        //     where: {
-        //         name: {
-        //             [Op.iLike]: '%' + TERM + '%'
-        //         }
-        //     }
-        // }]
+            title: {
+                [Op.iLike]: '%' + TERM + '%'
+            }
+        },
     });
+    console.log('\n\nrouter.get ~ RECIPES_WITH_TERM_IN_TITLE', RECIPES_WITH_TERM_IN_TITLE, '\n\n');
 
     const RECIPES_WITH_TERM_IN_CATEGORY = await db.Recipe.findAll({
         include: {
@@ -311,85 +285,41 @@ console.log('==============AFTER==================');
         }
     });
 
-    let allMatchingRecipes = [...RECIPES_WITH_TERM_IN_TITLE, ...RECIPES_WITH_TERM_IN_CATEGORY, ...RECIPES_WITH_TERM_IN_INGREDIENTS]
-
-    // let allMatchingRecipes = await db.Recipe.findAll({
-    //     [Op.or]: [
-    //         {
-    //             where: {
-    //                 title:
-    //                 {
-    //                     [Op.iLike]: '%' + TERM + '%'
-    //                 }
-    //             }
-    //         }
-    //         ,
-    //         {
-    //             include: {
-    //                 model: db.Ingredient,
-    //                 where: {
-    //                     name: {
-    //                         [Op.iLike]: '%' + TERM + '%'
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             include: {
-    //                 model: db.Category,
-    //                 where: {
-    //                     name: {
-    //                         [Op.iLike]: '%' + TERM + '%'
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     ]
-    // })
-
-    //console.log('++++++++++++++++', allMatchingRecipes.length);
-
-    // for(let i = 0; i < allMatchingRecipes.length; i++) {
-    //     for(let j = 0; j < allMatchingRecipes.length; j++) {
-    //         if (allMatchingRecipes[i] == allMatchingRecipes[j] && i != j) {
-    //             allMatchingRecipes.splice(i, 1);
-    //             i--;
-    //             j--;
-    //         }
-    //     }
-    // }
-
-    console.log('=================LENGTH=================', allMatchingRecipes.length)
+    let allMatchingRecipes = [...RECIPES_WITH_TERM_IN_CATEGORY, ...RECIPES_WITH_TERM_IN_INGREDIENTS]
 
     let matchingRecipeIds = new Set();
 
-    for(let recipe of allMatchingRecipes) {
-        if(recipe.Recipe) {
-            matchingRecipeIds.add(recipe.Recipe.id);
-            continue;
-        }
-        matchingRecipeIds.add(recipe.id);
-    }
-
-    console.log(matchingRecipeIds);
-
-    let recipes = await db.Recipe.findAll({
-        // Array.from(matchingRecipeIds);
-        where: {
-            id: {
-                [Op.in]: Array.from(matchingRecipeIds)
+    for(let recipe of RECIPES_WITH_TERM_IN_TITLE) {
+        if(recipe.id) {
+            if(!matchingRecipeIds.has(recipe.id)) {
+                matchingRecipeIds.add(recipe.id);
             }
         }
+    }
+
+    for(let recipe of allMatchingRecipes) {
+        if(recipe.Recipe) {
+            if(!matchingRecipeIds.has(recipe.Recipe.id)) {
+                matchingRecipeIds.add(recipe.Recipe.id);
+            }
+        }
+    }
+
+    let ids = Array.from(matchingRecipeIds);
+    let recipes = await db.Recipe.findAll({
+
+        where: {
+            id: {
+                    [Op.in]: ids
+                }
+            }
     });
 
-    // console.log(recipes);
-
-    //return res.redirect(`/recipes/?search=${TERM}`);
-    res.render('search-results', { recipes: allMatchingRecipes })
+    res.render('search-results', { recipes })
 }));
 
 router.all((req, res, next) => {
-    console.log('=================After Search================');
+    console.log('router.get ~ matchingRecipeIds', matchingRecipeIds);
     next();
 });
 
